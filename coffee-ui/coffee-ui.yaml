@@ -59,7 +59,7 @@ metadata:
   name: coffee-ui-ingress
   namespace: coffee
 spec:
-  ingressClassName: cilium
+  ingressClassName: nginx
   tls:
     - hosts:
         - coffee.bimats.com
