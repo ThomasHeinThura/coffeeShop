@@ -1,0 +1,75 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    profiles:
+      - local
+    restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --api.dashboard=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    networks:
+      - web
+
+  coffee-api:
+    image: ${COFFEE_API_IMAGE:-bimdevops/coffee-api:latest}
+    pull_policy: always
+    container_name: coffee-api
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=enterprise_net
+      - traefik.http.routers.coffee-api.rule=Host(`coffee-api.bimats.net`)
+      - traefik.http.routers.coffee-api-http.rule=Host(`coffee-api.bimats.net`)
+      - traefik.http.routers.coffee-api-http.entrypoints=web
+      - traefik.http.routers.coffee-api-http.service=coffee-api
+      - traefik.http.routers.coffee-api.entrypoints=websecure
+      - traefik.http.routers.coffee-api.tls=true
+      - traefik.http.routers.coffee-api.tls.certresolver=letsencrypt
+      - traefik.http.services.coffee-api.loadbalancer.server.port=3000
+    networks:
+      - web
+
+  coffee-ui:
+    image: ${COFFEE_UI_IMAGE:-bimdevops/coffee-ui:latest}
+    pull_policy: always
+    container_name: coffee-ui
+    restart: unless-stopped
+    depends_on:
+      - coffee-api
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=enterprise_net
+      - traefik.http.routers.coffee-ui.rule=Host(`coffee-shop.bimats.net`)
+      - traefik.http.routers.coffee-ui-http.rule=Host(`coffee-shop.bimats.net`)
+      - traefik.http.routers.coffee-ui-http.entrypoints=web
+      - traefik.http.routers.coffee-ui-http.service=coffee-ui
+      - traefik.http.routers.coffee-ui.entrypoints=websecure
+      - traefik.http.routers.coffee-ui.tls=true
+      - traefik.http.routers.coffee-ui.tls.certresolver=letsencrypt
+      - traefik.http.services.coffee-ui.loadbalancer.server.port=80
+    networks:
+      - web
+
+volumes:
+  traefik_letsencrypt:
+
+networks:
+  web:
+    external: true
+    name: enterprise_net

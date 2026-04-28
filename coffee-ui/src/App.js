@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuthContext } from '@asgardeo/auth-react';
 
-const API_BASE = 'https://gw.bimats.com/coffee/1';
+const API_BASE = process.env.REACT_APP_API_BASE_URL || 'https://api.bimats.com/coffee/1';
+const APIM_SUBSCRIPTION_KEY = process.env.REACT_APP_APIM_SUBSCRIPTION_KEY || '';
 
 export default function App() {
   const { state, signIn, signOut, getHttpClient, getAccessToken } = useAuthContext();
@@ -31,17 +32,26 @@ export default function App() {
     setData(null);
 
     try {
-      // Try the built-in HTTP client (auto-attaches token)  [oai_citation:1‡npm](https://www.npmjs.com/package/%40asgardeo/auth-react)
+      // Try the built-in HTTP client first; it can attach the token automatically.
       const client = getHttpClient();
-      const resp   = await client.get(`${API_BASE}/${path}`);
+      const resp   = await client.get(`${API_BASE}/${path}`, {
+        headers: APIM_SUBSCRIPTION_KEY
+          ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
+          : {}
+      });
       return setData(resp.data);
 
     } catch {
-      // Fallback: manually fetch with getAccessToken  [oai_citation:2‡npm](https://www.npmjs.com/package/%40asgardeo/auth-react)
+      // Fallback: fetch manually with a token from the auth SDK.
       try {
         const token = await getAccessToken();
         const resp  = await fetch(`${API_BASE}/${path}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ...(APIM_SUBSCRIPTION_KEY
+              ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
+              : {})
+          }
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         setData(await resp.json());
