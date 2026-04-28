@@ -27,7 +27,7 @@ services:
       - web
 
   coffee-api:
-    image: ${COFFEE_API_IMAGE:-bimdevops/coffee-api:1.0.1}
+    image: bimdevops/coffee-api:1.0.1
     pull_policy: always
     container_name: coffee-api
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
       - web
 
   coffee-ui:
-    image: ${COFFEE_UI_IMAGE:-bimdevops/coffee-ui:1.0.1}
+    image: bimdevops/coffee-ui:1.0.1
     pull_policy: always
     container_name: coffee-ui
     restart: unless-stopped
