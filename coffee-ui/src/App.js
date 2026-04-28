@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { useAuthContext } from '@asgardeo/auth-react';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'https://api.bimats.com/coffee/1';
-const APIM_SUBSCRIPTION_KEY = process.env.REACT_APP_APIM_SUBSCRIPTION_KEY || '';
+const runtimeConfig = window.__APP_CONFIG__ || {};
+
+const API_BASE = runtimeConfig.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_BASE_URL || 'https://api.bimats.com/coffee/1';
 
 function buildApimHeaders(token) {
   return {
     accept: '*/*',
     Authorization: `Bearer ${token}`,
     // Keep this custom header for APIM compatibility; curl success uses it.
-    ServerOuath: `Bearer ${token}`,
-    ...(APIM_SUBSCRIPTION_KEY
-      ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
-      : {})
+    ServerOuath: `Bearer ${token}`
   };
 }
 

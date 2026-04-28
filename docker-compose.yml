@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:latest
     container_name: traefik
     profiles:
       - local
@@ -46,10 +46,18 @@ services:
       - web
 
   coffee-ui:
-    image: bimdevops/coffee-ui:1.0.1
+    image: bimdevops/coffee-ui:1.0.2
     pull_policy: always
     container_name: coffee-ui
     restart: unless-stopped
+    environment:
+      REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-https://api.bimats.com/coffee/1}
+      REACT_APP_ASGARDEO_CLIENT_ID: ${REACT_APP_ASGARDEO_CLIENT_ID}
+      REACT_APP_ASGARDEO_BASE_URL: ${REACT_APP_ASGARDEO_BASE_URL:-https://iam.bimats.com}
+      REACT_APP_RESOURCE_SERVER_URL: ${REACT_APP_RESOURCE_SERVER_URL:-https://api.bimats.com}
+      REACT_APP_SITE_URL: ${REACT_APP_SITE_URL:-https://coffee-shop.bimats.net}
+      REACT_APP_SIGN_IN_REDIRECT_URL: ${REACT_APP_SIGN_IN_REDIRECT_URL:-https://coffee-shop.bimats.net/}
+      REACT_APP_SIGN_OUT_REDIRECT_URL: ${REACT_APP_SIGN_OUT_REDIRECT_URL:-https://coffee-shop.bimats.net/}
     depends_on:
       - coffee-api
     labels:

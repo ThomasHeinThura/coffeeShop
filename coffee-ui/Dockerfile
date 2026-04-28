@@ -7,7 +7,6 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 ARG REACT_APP_API_BASE_URL
-ARG REACT_APP_APIM_SUBSCRIPTION_KEY
 ARG REACT_APP_ASGARDEO_CLIENT_ID
 ARG REACT_APP_ASGARDEO_BASE_URL
 ARG REACT_APP_RESOURCE_SERVER_URL
@@ -16,7 +15,6 @@ ARG REACT_APP_SIGN_IN_REDIRECT_URL
 ARG REACT_APP_SIGN_OUT_REDIRECT_URL
 
 ENV REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
-ENV REACT_APP_APIM_SUBSCRIPTION_KEY=${REACT_APP_APIM_SUBSCRIPTION_KEY}
 ENV REACT_APP_ASGARDEO_CLIENT_ID=${REACT_APP_ASGARDEO_CLIENT_ID}
 ENV REACT_APP_ASGARDEO_BASE_URL=${REACT_APP_ASGARDEO_BASE_URL}
 ENV REACT_APP_RESOURCE_SERVER_URL=${REACT_APP_RESOURCE_SERVER_URL}
@@ -48,6 +46,9 @@ COPY --from=builder /app/build /usr/share/nginx/html
 
 # (Optional) override default conf to support client-side routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker-entrypoint-env.sh /docker-entrypoint.d/40-env-config.sh
+
+RUN chmod +x /docker-entrypoint.d/40-env-config.sh
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
