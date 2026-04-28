@@ -4,6 +4,18 @@ import { useAuthContext } from '@asgardeo/auth-react';
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'https://api.bimats.com/coffee/1';
 const APIM_SUBSCRIPTION_KEY = process.env.REACT_APP_APIM_SUBSCRIPTION_KEY || '';
 
+function buildApimHeaders(token) {
+  return {
+    accept: '*/*',
+    Authorization: `Bearer ${token}`,
+    // Keep this custom header for APIM compatibility; curl success uses it.
+    ServerOuath: `Bearer ${token}`,
+    ...(APIM_SUBSCRIPTION_KEY
+      ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
+      : {})
+  };
+}
+
 export default function App() {
   const { state, signIn, signOut, getHttpClient, getAccessToken } = useAuthContext();
   const [data, setData]    = useState(null);
@@ -34,10 +46,9 @@ export default function App() {
     try {
       // Try the built-in HTTP client first; it can attach the token automatically.
       const client = getHttpClient();
+      const token = await getAccessToken();
       const resp   = await client.get(`${API_BASE}/${path}`, {
-        headers: APIM_SUBSCRIPTION_KEY
-          ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
-          : {}
+        headers: buildApimHeaders(token)
       });
       return setData(resp.data);
 
@@ -46,17 +57,15 @@ export default function App() {
       try {
         const token = await getAccessToken();
         const resp  = await fetch(`${API_BASE}/${path}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            ...(APIM_SUBSCRIPTION_KEY
-              ? { 'Ocp-Apim-Subscription-Key': APIM_SUBSCRIPTION_KEY }
-              : {})
-          }
+          headers: buildApimHeaders(token)
         });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        if (!resp.ok) {
+          const body = await resp.text();
+          throw new Error(`HTTP ${resp.status}${body ? `: ${body}` : ''}`);
+        }
         setData(await resp.json());
       } catch (e) {
-        setError(e.message);
+        setError(e.message || 'Failed to fetch. Check APIM CORS and required headers.');
       }
     } finally {
       setLoading(false);
