@@ -2,8 +2,8 @@
 
 ## Domains
 
-- Frontend: `https://coffee-shop.bimats.net`
-- Backend: `https://coffee-api.bimats.net`
+- Frontend: `https://coffee-shop.bimats.com`
+- Backend: `https://coffee-api.bimats.com`
 - APIM Gateway: `https://api.bimats.com/coffee/1`
 
 ## Credential Mapping
@@ -18,7 +18,7 @@
 
 Set API Management backend URL to:
 
-- `https://coffee-api.bimats.net/coffee`
+- `https://coffee-api.bimats.com/coffee`
 
 This matches backend routes exposed by the API service:
 
@@ -64,8 +64,8 @@ docker compose logs -f --tail=200
 Backend direct domain:
 
 ```bash
-curl -i https://coffee-api.bimats.net/coffee/hot
-curl -i https://coffee-api.bimats.net/coffee/iced
+curl -i https://coffee-api.bimats.com/coffee/hot
+curl -i https://coffee-api.bimats.com/coffee/iced
 ```
 
 APIM via gateway (with subscription key):
@@ -78,5 +78,5 @@ curl -i -H "Ocp-Apim-Subscription-Key: <YOUR_APIM_SUBSCRIPTION_KEY>" https://api
 Frontend:
 
 ```bash
-curl -I https://coffee-shop.bimats.net
+curl -I https://coffee-shop.bimats.com
 ```

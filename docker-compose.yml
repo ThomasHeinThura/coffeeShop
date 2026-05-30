@@ -34,8 +34,8 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=enterprise_net
-      - traefik.http.routers.coffee-api.rule=Host(`coffee-api.bimats.net`)
-      - traefik.http.routers.coffee-api-http.rule=Host(`coffee-api.bimats.net`)
+      - traefik.http.routers.coffee-api.rule=Host(`coffee-api.bimats.com`)
+      - traefik.http.routers.coffee-api-http.rule=Host(`coffee-api.bimats.com`)
       - traefik.http.routers.coffee-api-http.entrypoints=web
       - traefik.http.routers.coffee-api-http.service=coffee-api
       - traefik.http.routers.coffee-api.entrypoints=websecure
@@ -46,7 +46,7 @@ services:
       - web
 
   coffee-ui:
-    image: bimdevops/coffee-ui:1.0.2
+    image: bimdevops/coffee-ui:1.0.3
     pull_policy: always
     container_name: coffee-ui
     restart: unless-stopped
@@ -55,16 +55,16 @@ services:
       REACT_APP_ASGARDEO_CLIENT_ID: ${REACT_APP_ASGARDEO_CLIENT_ID}
       REACT_APP_ASGARDEO_BASE_URL: ${REACT_APP_ASGARDEO_BASE_URL:-https://iam.bimats.com}
       REACT_APP_RESOURCE_SERVER_URL: ${REACT_APP_RESOURCE_SERVER_URL:-https://api.bimats.com}
-      REACT_APP_SITE_URL: ${REACT_APP_SITE_URL:-https://coffee-shop.bimats.net}
-      REACT_APP_SIGN_IN_REDIRECT_URL: ${REACT_APP_SIGN_IN_REDIRECT_URL:-https://coffee-shop.bimats.net/}
-      REACT_APP_SIGN_OUT_REDIRECT_URL: ${REACT_APP_SIGN_OUT_REDIRECT_URL:-https://coffee-shop.bimats.net/}
+      REACT_APP_SITE_URL: ${REACT_APP_SITE_URL:-https://coffee-shop.bimats.com}
+      REACT_APP_SIGN_IN_REDIRECT_URL: ${REACT_APP_SIGN_IN_REDIRECT_URL:-https://coffee-shop.bimats.com/}
+      REACT_APP_SIGN_OUT_REDIRECT_URL: ${REACT_APP_SIGN_OUT_REDIRECT_URL:-https://coffee-shop.bimats.com/}
     depends_on:
       - coffee-api
     labels:
       - traefik.enable=true
       - traefik.docker.network=enterprise_net
-      - traefik.http.routers.coffee-ui.rule=Host(`coffee-shop.bimats.net`)
-      - traefik.http.routers.coffee-ui-http.rule=Host(`coffee-shop.bimats.net`)
+      - traefik.http.routers.coffee-ui.rule=Host(`coffee-shop.bimats.com`)
+      - traefik.http.routers.coffee-ui-http.rule=Host(`coffee-shop.bimats.com`)
       - traefik.http.routers.coffee-ui-http.entrypoints=web
       - traefik.http.routers.coffee-ui-http.service=coffee-ui
       - traefik.http.routers.coffee-ui.entrypoints=websecure
